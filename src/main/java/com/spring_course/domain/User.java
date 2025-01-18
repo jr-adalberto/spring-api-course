@@ -40,7 +40,9 @@ public class User implements Serializable {
     private List<Request> requests = new ArrayList<Request>();
 
     @OneToMany(mappedBy = "owner")
-    private List<RequestStage> stages = new ArrayList<RequestStage>();
+    private List<RequestStage> stages = new ArrayList<RequestStage>();   @Version
+    @Column(nullable = false)
+    private Long version;
 
     public User(Long id, String name, String email, String password, Role role, List<Request> requests, List<RequestStage> stages) {
         this.id = id;
@@ -59,8 +61,8 @@ public class User implements Serializable {
         return id;
     }
 
-    public String getPassword() {
-        return password;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -69,5 +71,53 @@ public class User implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public List<Request> getRequests() {
+        return requests;
+    }
+
+    public void setRequests(List<Request> requests) {
+        this.requests = requests;
+    }
+
+    public List<RequestStage> getStages() {
+        return stages;
+    }
+
+    public void setStages(List<RequestStage> stages) {
+        this.stages = stages;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
