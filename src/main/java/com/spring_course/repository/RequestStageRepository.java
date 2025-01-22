@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface RequestStageRepository extends JpaRepository<RequestStage, Long> {
     List<RequestStage> findByRequestId(Long requestId);
+    List<RequestStage> findAllByRequestId(Long requestId);
 }
