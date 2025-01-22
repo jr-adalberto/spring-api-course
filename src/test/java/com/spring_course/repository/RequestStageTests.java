@@ -53,7 +53,7 @@ public class RequestStageTests {
 
     @Test
     public void AsaveTest() {
-        User owner = userRepository.findById(6L).orElseThrow(() -> new RuntimeException("Owner not found")); // ID atualizado
+        User owner = userRepository.findById(6L).orElseThrow(() -> new RuntimeException("Owner not found"));
         Request request = requestRepository.findById(1L).orElseThrow(() -> new RuntimeException("Request not found"));
 
         RequestStage stage = new RequestStage();
@@ -71,7 +71,7 @@ public class RequestStageTests {
     @Test
     public void getByIdTest() {
         List<RequestStage> stages = requestStageRepository.findAll();
-        assertThat(stages).isNotEmpty(); // Verifica se há registros na lista
+        assertThat(stages).isNotEmpty();
 
         RequestStage stage = stages.get(0);
         assertThat(stage.getDescription()).isEqualTo("Testando a criação de um novo estágio");
@@ -84,7 +84,7 @@ public class RequestStageTests {
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
         List<RequestStage> stages = requestStageRepository.findAllByRequestId(request.getId());
-        assertThat(stages.size()).isGreaterThan(0); // Verificar se há pelo menos um item na lista
+        assertThat(stages.size()).isGreaterThan(0);
     }
 
 }
