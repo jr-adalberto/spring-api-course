@@ -57,6 +57,5 @@ public class UserResource {
     public ResponseEntity<List<Request>> listAllRequestById(@PathVariable(name = "id") Long id) {
         List<Request> requests = requestService.listAllByOwnerId(id);
         return ResponseEntity.ok(requests);
-
     }
 }
