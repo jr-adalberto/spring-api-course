@@ -49,18 +49,6 @@ public class Request implements Serializable {
     @OneToMany(mappedBy = "request")
     private List<RequestStage> stages = new ArrayList<RequestStage>();
 
-    public Request() {
-    }
-
-    public Request(Long id, String subject, String description, Date creationDate, RequestState state, User owner, List<RequestStage> stages) {
-        this.id = id;
-        this.subject = subject;
-        this.description = description;
-        this.creationDate = creationDate;
-        this.state = state;
-        this.owner = owner;
-        this.stages = stages != null ? stages : new ArrayList<>();
-    }
 
     public Long getId() {
         return id;
@@ -70,36 +58,12 @@ public class Request implements Serializable {
         this.id = id;
     }
 
-    public String getSubject() {
-        return subject;
+    public List<RequestStage> getStages() {
+        return stages;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public RequestState getState() {
-        return state;
-    }
-
-    public void setState(RequestState state) {
-        this.state = state;
+    public void setStages(List<RequestStage> stages) {
+        this.stages = stages;
     }
 
     public User getOwner() {
@@ -110,11 +74,35 @@ public class Request implements Serializable {
         this.owner = owner;
     }
 
-    public List<RequestStage> getStages() {
-        return stages;
+    public RequestState getState() {
+        return state;
     }
 
-    public void setStages(List<RequestStage> stages) {
-        this.stages = stages;
+    public void setState(RequestState state) {
+        this.state = state;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

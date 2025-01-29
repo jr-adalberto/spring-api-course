@@ -1,6 +1,7 @@
 package com.spring_course.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spring_course.enums.RequestState;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,25 +39,13 @@ public class RequestStage implements Serializable {
     private RequestState state;
 
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinColumn(name = "request_id", nullable = false)
     private Request request;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-
-
-    public RequestStage(Long id, String description, Date realizationDate, RequestState state, Request request, User owner) {
-        this.id = id;
-        this.description = description;
-        this.realizationDate = realizationDate;
-        this.state = state;
-        this.request = request;
-        this.owner = owner;
-    }
-
-    public RequestStage() {
-    }
 
     public Long getId() {
         return id;
@@ -66,28 +55,12 @@ public class RequestStage implements Serializable {
         this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getRealizationDate() {
-        return realizationDate;
-    }
-
-    public void setRealizationDate(Date realizationDate) {
-        this.realizationDate = realizationDate;
-    }
-
-    public RequestState getState() {
-        return state;
-    }
-
-    public void setState(RequestState state) {
-        this.state = state;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public Request getRequest() {
@@ -98,11 +71,27 @@ public class RequestStage implements Serializable {
         this.request = request;
     }
 
-    public User getOwner() {
-        return owner;
+    public RequestState getState() {
+        return state;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setState(RequestState state) {
+        this.state = state;
+    }
+
+    public Date getRealizationDate() {
+        return realizationDate;
+    }
+
+    public void setRealizationDate(Date realizationDate) {
+        this.realizationDate = realizationDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -21,7 +21,7 @@ public class RequestStageResource {
     }
 
 
-    @GetMapping
+    @GetMapping(value = "/{id}")
     public ResponseEntity<RequestStage> getById(@PathVariable(name = "id")Long id){
         RequestStage stage = stageService.getById(id);
         return ResponseEntity.ok(stage);

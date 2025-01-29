@@ -1,8 +1,10 @@
 package com.spring_course.service;
 
 import com.spring_course.domain.User;
+import com.spring_course.exception.NotFoundException;
 import com.spring_course.repository.UserRepository;
 import com.spring_course.service.util.HashUtil;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +25,21 @@ public class UserService {
     }
 
     public User update(User user) {
-        String hash = HashUtil.getSecureHash(user.getPassword());
-        user.setPassword(hash);
-        User updatedUser = userRepository.save(user);
-        return updatedUser;
+        Optional<User> existingUserOpt = userRepository.findById(user.getId());
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+            existingUser.setPassword(HashUtil.getSecureHash(user.getPassword()));
+
+            User updatedUser = userRepository.save(existingUser);
+            return updatedUser;
+        }
+        throw new EntityNotFoundException("User not found with ID: " + user.getId());
     }
+
 
     public User getById(Long id) {
         Optional<User> result = userRepository.findById(id);
-        return result.get();
+        return result.orElseThrow(()-> new NotFoundException("There are not user with id = " + id));
     }
 
     public List<User> listAll() {

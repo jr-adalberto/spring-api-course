@@ -2,6 +2,7 @@ package com.spring_course.service;
 
 import com.spring_course.domain.Request;
 import com.spring_course.enums.RequestState;
+import com.spring_course.exception.NotFoundException;
 import com.spring_course.repository.RequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class RequestService {
 
     public Request getById(Long id) {
         Optional<Request> result = requestRepository.findById(id);
-        return result.get();
+        return result.orElseThrow(()-> new NotFoundException("There are not request with id = " + id));
     }
 
     public List<Request> listAll() {

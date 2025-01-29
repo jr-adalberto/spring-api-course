@@ -1,5 +1,6 @@
 package com.spring_course.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spring_course.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,25 +38,16 @@ public class User implements Serializable {
     private Role role;
 
     @OneToMany(mappedBy = "owner")
+    @JsonIgnore
     private List<Request> requests = new ArrayList<Request>();
 
     @OneToMany(mappedBy = "owner")
-    private List<RequestStage> stages = new ArrayList<RequestStage>();   @Version
+    @JsonIgnore
+    private List<RequestStage> stages = new ArrayList<RequestStage>();
+
+    @Version
     @Column(nullable = false)
     private Long version;
-
-    public User(Long id, String name, String email, String password, Role role, List<Request> requests, List<RequestStage> stages) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.requests = requests != null ? requests : new ArrayList<>();
-        this.stages = stages != null ? stages : new ArrayList<>();
-    }
-
-    public User() {
-    }
 
     public Long getId() {
         return id;
