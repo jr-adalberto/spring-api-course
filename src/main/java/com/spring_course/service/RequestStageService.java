@@ -3,7 +3,6 @@ package com.spring_course.service;
 import com.spring_course.domain.Request;
 import com.spring_course.domain.RequestStage;
 import com.spring_course.domain.User;
-import com.spring_course.enums.RequestState;
 import com.spring_course.exception.NotFoundException;
 import com.spring_course.repository.RequestRepository;
 import com.spring_course.repository.RequestStageRepository;
@@ -11,7 +10,6 @@ import com.spring_course.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
