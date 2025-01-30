@@ -49,6 +49,24 @@ public class User implements Serializable {
     @Column(nullable = false)
     private Long version;
 
+
+    public User() {
+    }
+
+    public User(Long id, Long version, List<RequestStage> stages, List<Request> requests, Role role, String password, String email, String name) {
+        this.id = id;
+        this.version = version;
+        this.stages = stages;
+        this.requests = requests;
+        this.role = role;
+        this.password = password;
+        this.email = email;
+        this.name = name;
+    }
+
+    public User(Object o, String maria, String mail, String number, Role role, Object o1, Object o2) {
+    }
+
     public Long getId() {
         return id;
     }

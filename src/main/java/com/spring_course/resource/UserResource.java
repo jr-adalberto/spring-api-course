@@ -3,7 +3,10 @@ package com.spring_course.resource;
 import com.spring_course.domain.Request;
 import com.spring_course.domain.User;
 import com.spring_course.dto.UserLogindto;
+import com.spring_course.dto.UserUpdateRoledto;
 import com.spring_course.model.PageModel;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
 import com.spring_course.model.PageRequestModel;
 import com.spring_course.service.RequestService;
 import com.spring_course.service.UserService;
@@ -12,8 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping(value = "users")
@@ -65,11 +68,24 @@ public class UserResource {
     public ResponseEntity<PageModel<Request>> listAllRequestsById(
             @PathVariable(name = "id") Long id,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "page",defaultValue = "0") int page) {
+            @RequestParam(value = "page", defaultValue = "0") int page) {
 
         PageRequestModel pr = new PageRequestModel(page, size);
         PageModel<Request> pm = requestService.listAllByOwnerIdOnLazyModel(id, pr);
 
         return ResponseEntity.ok(pm);
+    }
+
+
+    @Secured({"ROLE_ADMINISTRATOR"})
+    @PatchMapping("/role/{id}")
+    public ResponseEntity<?> updateRole(@PathVariable(name = "id") Long id, @RequestBody @Valid UserUpdateRoledto userdto) {
+        User user = new User();
+        user.setId(id);
+        user.setRole(userdto.getRole());
+
+        userService.updateRole(user);
+
+        return ResponseEntity.ok().build();
     }
 }

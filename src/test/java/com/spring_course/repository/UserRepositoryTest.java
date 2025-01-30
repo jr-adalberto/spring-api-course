@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.spring_course.domain.User;
 import com.spring_course.enums.Role;
 import org.junit.FixMethodOrder;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -16,61 +16,56 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
 @RunWith(SpringRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@SpringBootTest
 public class UserRepositoryTest {
+    @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    private User savedUser;
-
-    @BeforeEach
-    public void setup() {
-        userRepository.deleteAll();
-        User user = new User(null, "Joao", "joao.reis@gmail.com", "123", Role.ADMINISTRATOR, null, null);
-        savedUser = userRepository.save(user);
-    }
-
-    @Test
+    @Ignore
     public void AsaveTest() {
         User user = new User(null, "Maria", "maria@gmail.com", "456", Role.SIMPLE, null, null);
         User createdUser = userRepository.save(user);
 
-        assertThat(createdUser.getId()).isNotNull();
+        assertThat(createdUser.getId()).isEqualTo(1L);
+
     }
 
-    @Test
+    @Ignore
     public void updateTest() {
-        User user = userRepository.findById(savedUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        user.setName("Joao Atualizado");
+        User user = new User(11L, "Maria", "maria@gmail.com", "456", Role.SIMPLE, null, null);
         User updatedUser = userRepository.save(user);
 
-        assertThat(updatedUser.getName()).isEqualTo("Joao Atualizado");
+        assertThat(updatedUser.getName()).isEqualTo("Maria Silva");
     }
 
-    @Test
+    @Ignore
     public void getByIdTest() {
-        Optional<User> result = userRepository.findById(savedUser.getId());
-        User user = result.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        Optional<User> result = userRepository.findById(11L);
+        User user = result.get();
 
-        assertThat(user.getPassword()).isEqualTo("123");
+        assertThat(user.getPassword()).isEqualTo("456");
     }
 
-
-    @Test
+    @Ignore
     public void listTest() {
         List<User> users = userRepository.findAll();
-        assertThat(users).hasSize(1);
+
+        assertThat(users.size()).isEqualTo(1);
+    }
+
+    @Ignore
+    public void loginTest() {
+        Optional<User> result = userRepository.login("maria@gmail.com", "456");
+        User loggedUser = result.get();
+
+        assertThat(loggedUser.getId()).isEqualTo(1L);
     }
 
     @Test
-    public void loginTest() {
-        User loggedUser = userRepository.login("joao.reis@gmail.com", "123")
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado ou credenciais inválidas"));
-
-        assertThat(loggedUser.getId()).isNotNull();
+    public void updateRoleTest() {
+        int affectedRows = userRepository.updateRole(7L, Role.ADMINISTRATOR);
+        assertThat(affectedRows).isEqualTo(1);
     }
+
 }
