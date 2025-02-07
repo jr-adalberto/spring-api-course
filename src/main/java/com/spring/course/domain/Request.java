@@ -23,8 +23,8 @@ import java.util.List;
 @Entity(name = "request")
 public class Request implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 7957819238970509652L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +45,7 @@ public class Request implements Serializable {
     private RequestState state;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id",nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @OneToMany(mappedBy = "request")
