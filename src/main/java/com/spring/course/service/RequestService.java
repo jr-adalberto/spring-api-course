@@ -31,12 +31,14 @@ public class RequestService {
     public Request save(Request request) {
         User owner = userRepository.findById(request.getOwner().getId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getOwner().getId()));
+
         request.setOwner(owner);
         request.setState(RequestState.OPEN);
         request.setCreationDate(new Date());
 
         return requestRepository.save(request);
     }
+
 
 
     public Request update(Request request) {
@@ -47,6 +49,7 @@ public class RequestService {
 
         return requestRepository.save(request);
     }
+
 
 
     public Request getById(Long id) {

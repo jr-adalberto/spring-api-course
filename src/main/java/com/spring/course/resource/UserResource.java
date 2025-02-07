@@ -11,21 +11,21 @@ import com.spring.course.model.PageRequestModel;
 import com.spring.course.service.RequestService;
 import com.spring.course.service.UserService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Validated
+
 @RestController
-@RequiredArgsConstructor
 @RequestMapping(value = "users")
 public class UserResource {
 
-    private final UserService userService;
-    private final RequestService requestService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private RequestService requestService;
 
     @PostMapping
     public ResponseEntity<User> save(@RequestBody @Valid UserSavedto userdto) {
@@ -60,7 +60,7 @@ public class UserResource {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody @Valid UserLogindto user) {
+    public ResponseEntity<User> login(@RequestBody UserLogindto user) {
         User loggedUser = userService.login(user.getEmail(), user.getPassword());
         return ResponseEntity.ok(loggedUser);
     }
@@ -77,6 +77,8 @@ public class UserResource {
         return ResponseEntity.ok(pm);
     }
 
+
+    @Secured({"ROLE_ADMINISTRATOR"})
     @PatchMapping("/role/{id}")
     public ResponseEntity<?> updateRole(@PathVariable(name = "id") Long id, @RequestBody @Valid UserUpdateRoledto userdto) {
         User user = new User();

@@ -25,6 +25,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User save(User user) {
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
 
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser.isPresent()) {
@@ -41,16 +44,7 @@ public class UserService {
         Optional<User> existingUserOpt = userRepository.findById(user.getId());
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-
-            if (user.getName() != null) {
-                existingUser.setName(user.getName());
-            }
-            if (user.getEmail() != null) {
-                existingUser.setEmail(user.getEmail());
-            }
-            if (user.getPassword() != null) {
-                existingUser.setPassword(HashUtil.getSecureHash(user.getPassword()));
-            }
+            existingUser.setPassword(HashUtil.getSecureHash(user.getPassword()));
 
             User updatedUser = userRepository.save(existingUser);
             return updatedUser;
@@ -86,4 +80,5 @@ public class UserService {
     public int updateRole(User user) {
         return userRepository.updateRole(user.getId(), user.getRole());
     }
+
 }
