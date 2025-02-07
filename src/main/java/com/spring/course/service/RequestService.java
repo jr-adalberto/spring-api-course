@@ -1,11 +1,14 @@
 package com.spring.course.service;
 
 import com.spring.course.domain.Request;
+import com.spring.course.domain.User;
 import com.spring.course.enums.RequestState;
 import com.spring.course.exception.NotFoundException;
 import com.spring.course.model.PageModel;
 import com.spring.course.model.PageRequestModel;
 import com.spring.course.repository.RequestRepository;
+import com.spring.course.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,18 +26,28 @@ public class RequestService {
 
 
     private final RequestRepository requestRepository;
+    private final UserRepository userRepository;
 
     public Request save(Request request) {
+        User owner = userRepository.findById(request.getOwner().getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getOwner().getId()));
+        request.setOwner(owner);
         request.setState(RequestState.OPEN);
         request.setCreationDate(new Date());
-        Request createdRequest = requestRepository.save(request);
-        return createdRequest;
+
+        return requestRepository.save(request);
     }
 
+
     public Request update(Request request) {
-        Request updatedRequest = requestRepository.save(request);
-        return updatedRequest;
+        User owner = userRepository.findById(request.getOwner().getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + request.getOwner().getId()));
+
+        request.setOwner(owner);
+
+        return requestRepository.save(request);
     }
+
 
     public Request getById(Long id) {
         Optional<Request> result = requestRepository.findById(id);

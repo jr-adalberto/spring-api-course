@@ -3,6 +3,8 @@ package com.spring.course.domain;
 
 import com.spring.course.enums.RequestState;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +50,9 @@ public class Request implements Serializable {
 
     @OneToMany(mappedBy = "request")
     private List<RequestStage> stages = new ArrayList<RequestStage>();
+
+    public Request(Object o, @NotBlank(message = "Subject required") String subject, String description, Object o1, Object o2, @NotNull(message = "Owner required") User owner, List<RequestStage> stages, Object o3) {
+    }
 
 
     public Long getId() {
