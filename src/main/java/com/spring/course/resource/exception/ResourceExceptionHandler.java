@@ -11,6 +11,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 @ControllerAdvice
 public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
@@ -22,14 +23,21 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request) {
 
-        String errorMessage = ex.getBindingResult().getAllErrors()
+        List<String> errors = ex.getBindingResult().getAllErrors()
                 .stream()
                 .map(error -> error.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.toList());
 
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), errorMessage, new Date());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        ApiErrorList errorResponse = new ApiErrorList(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation errors",
+                new Date(),
+                errors
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
+
 
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity<ApiError> handleDuplicateUserException(DuplicateUserException ex) {
