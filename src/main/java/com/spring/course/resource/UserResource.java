@@ -2,30 +2,37 @@ package com.spring.course.resource;
 
 import com.spring.course.domain.Request;
 import com.spring.course.domain.User;
-import com.spring.course.dto.UserLogindto;
-import com.spring.course.dto.UserSavedto;
-import com.spring.course.dto.UserUpdateRoledto;
-import com.spring.course.dto.UserUpdatedto;
+import com.spring.course.dto.*;
 import com.spring.course.model.PageModel;
 import com.spring.course.model.PageRequestModel;
+import com.spring.course.security.JwtManager;
 import com.spring.course.service.RequestService;
 import com.spring.course.service.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
 @RequestMapping(value = "users")
+@RequiredArgsConstructor
 public class UserResource {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private RequestService requestService;
+    private final UserService userService;
+    private final RequestService requestService;
+    private final AuthenticationManager authManager;
+    private final JwtManager jwtManager;
 
     @PostMapping
     public ResponseEntity<User> save(@RequestBody @Valid UserSavedto userdto) {
@@ -60,9 +67,22 @@ public class UserResource {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody UserLogindto user) {
-        User loggedUser = userService.login(user.getEmail(), user.getPassword());
-        return ResponseEntity.ok(loggedUser);
+    public ResponseEntity<UserLoginResponsedto> login(@RequestBody @Valid UserLogindto user) {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        Authentication auth = authManager.authenticate(token);
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        org.springframework.security.core.userdetails.User userSpring =
+                (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+
+        String email = userSpring.getUsername();
+        List<String> roles = userSpring.getAuthorities()
+                .stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(jwtManager.createToken(email, roles));
     }
 
     @GetMapping("/{id}/requests")
