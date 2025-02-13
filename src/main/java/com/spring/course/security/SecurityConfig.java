@@ -1,32 +1,55 @@
 package com.spring.course.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.course.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
     private final UserService userService;
-    private final CustomPasswordEncoder passwordEncoder;
-    private final AuthorizationFilter authorizationFilter;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtManager jwtManager;
+    private final ObjectMapper objectMapper;
 
-    public SecurityConfig(UserService userService, CustomPasswordEncoder passwordEncoder, AuthorizationFilter authorizationFilter) {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new CustomPasswordEncoder();
+    }
+
+    public SecurityConfig(UserService userService, PasswordEncoder passwordEncoder, JwtManager jwtManager, ObjectMapper objectMapper) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.authorizationFilter = authorizationFilter;
+        this.jwtManager = jwtManager;
+        this.objectMapper = objectMapper;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
+                .userDetailsService(userService)
+                .passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(HttpMethod.POST, "/users/login");
     }
 
     @Bean
@@ -34,21 +57,10 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new AuthorizationFilter(jwtManager, objectMapper), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
