@@ -1,5 +1,6 @@
 package com.spring.course.resource;
 
+import com.spring.course.constant.SecurityConstants;
 import com.spring.course.domain.Request;
 import com.spring.course.domain.User;
 import com.spring.course.dto.*;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -68,21 +70,41 @@ public class UserResource {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponsedto> login(@RequestBody @Valid UserLogindto user) {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
-        Authentication auth = authManager.authenticate(token);
+        try {
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+            Authentication auth = authManager.authenticate(token);
 
-        org.springframework.security.core.userdetails.User userSpring =
-                (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+            SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String email = userSpring.getUsername();
-        List<String> roles = userSpring.getAuthorities()
-                .stream()
-                .map(authority -> authority.getAuthority())
-                .collect(Collectors.toList());
+            org.springframework.security.core.userdetails.User userSpring =
+                    (org.springframework.security.core.userdetails.User) auth.getPrincipal();
 
-        return ResponseEntity.ok(jwtManager.createToken(email, roles));
+            String email = userSpring.getUsername();
+            List<String> roles = userSpring.getAuthorities()
+                    .stream()
+                    .map(authority -> authority.getAuthority())
+                    .collect(Collectors.toList());
+
+            String jwtToken = jwtManager.createToken(
+                    email,
+                    roles,
+                    SecurityConstants.API_KEY,
+                    SecurityConstants.JWT_EXP_DAYS,
+                    SecurityConstants.JWT_PROVIDER
+            );
+
+            UserLoginResponsedto response = new UserLoginResponsedto();
+            response.setToken(jwtToken);
+            response.setEmail(email);
+            response.setRoles(roles);
+
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new UserLoginResponsedto(null, null, null, "Non-existent user or invalid password", null));
+        }
     }
 
     @GetMapping("/{id}/requests")
