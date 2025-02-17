@@ -4,10 +4,8 @@ package com.spring.course.dto;
 import com.spring.course.domain.Request;
 import com.spring.course.domain.RequestStage;
 import com.spring.course.domain.User;
-import com.spring.course.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 

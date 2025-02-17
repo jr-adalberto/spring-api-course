@@ -40,6 +40,7 @@ public class UserResource {
     private final AuthenticationManager authManager;
     private final JwtManager jwtManager;
 
+    @Secured({"ROLE_ADMINISTRATOR"})
     @PostMapping
     public ResponseEntity<User> save(@RequestBody @Valid UserSavedto userdto) {
         User userToSave = userdto.transformToUser();
@@ -93,26 +94,9 @@ public class UserResource {
             System.out.println("Email: " + email);
             System.out.println("Roles: " + roles);
 
-            String jwtToken = jwtManager.createToken(
-                    email,
-                    roles,
-                    SecurityConstants.API_KEY,
-                    SecurityConstants.JWT_EXP_DAYS,
-                    SecurityConstants.JWT_PROVIDER
-            );
+            UserLoginResponsedto response = jwtManager.createToken(email, roles);
 
-            System.out.println("Generated JWT Token: " + jwtToken);
-
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.DAY_OF_MONTH, SecurityConstants.JWT_EXP_DAYS);
-            long expireIn = calendar.getTimeInMillis();
-
-            UserLoginResponsedto response = new UserLoginResponsedto(
-                    jwtToken,
-                    expireIn,
-                    SecurityConstants.JWT_PROVIDER
-            );
+            System.out.println("Generated JWT Token: " + response.getToken());
 
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
