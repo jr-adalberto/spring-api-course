@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,8 +18,4 @@ public class ApiErrorList extends ApiError {
 
     private List<String> errors;
 
-    ApiErrorList(int code, String msg, Date date, List<String> errors){
-        super(code, msg, date);
-        this.errors = errors;
-    }
 }

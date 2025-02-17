@@ -1,5 +1,6 @@
 package com.spring.course.resource.exception;
 import com.spring.course.exception.DuplicateUserException;
+import com.spring.course.exception.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @ControllerAdvice
 public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -29,11 +31,10 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(error -> error.getDefaultMessage())
                 .collect(Collectors.toList());
 
-        ApiErrorList errorResponse = new ApiErrorList(
+        ApiError errorResponse = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
-                "Validation errors",
-                new Date(),
-                errors
+                String.join(", ", errors),
+                new Date()
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -46,15 +47,27 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiError> handleCustomExceptions(RuntimeException ex, HttpStatus status) {
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), new Date());
+        return new ResponseEntity<>(error, status);
+    }
+
+
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity<ApiError> handleDuplicateUserException(DuplicateUserException ex) {
-        ApiError error = new ApiError(HttpStatus.CONFLICT.value(), ex.getMessage(), new Date());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return handleCustomExceptions(ex, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
-        ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), new Date());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return handleCustomExceptions(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
+        ApiError error = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), new Date());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }

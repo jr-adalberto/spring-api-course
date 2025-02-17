@@ -37,8 +37,9 @@ public class UserSavedto {
     private List<RequestStage> stages = new ArrayList<>();
 
     public User transformToUser() {
-        User user = new User(null, this.name, this.email, this.password, this.role);
+        User user = new User(null, this.name, this.email, this.password, this.role, this.requests, this.stages);
         return user;
     }
+
 
 }

@@ -1,26 +1,29 @@
 package com.spring.course.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.spring.course.enums.Role;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.*;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@Entity(name = "user")
-public class User implements Serializable {
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    @Serial
+import com.spring.course.enums.Role;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter @Setter
+@Entity(name = "user")
+public class User implements Serializable{
+
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -33,107 +36,20 @@ public class User implements Serializable {
     @Column(length = 75, nullable = false, unique = true)
     private String email;
 
+    @Getter(onMethod = @__({@JsonIgnore}))
+    @Setter(onMethod = @__({@JsonProperty}))
     @Column(length = 100, nullable = false)
     private String password;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Getter(onMethod = @__({@JsonIgnore}))
     @OneToMany(mappedBy = "owner")
-    @JsonIgnore
     private List<Request> requests = new ArrayList<Request>();
 
+    @Getter(onMethod = @__({@JsonIgnore}))
     @OneToMany(mappedBy = "owner")
-    @JsonIgnore
     private List<RequestStage> stages = new ArrayList<RequestStage>();
-
-    @Version
-    @Column(nullable = false)
-    private Long version;
-
-
-    public User() {
-    }
-
-    public User(Long id, Long version, List<RequestStage> stages, List<Request> requests, Role role, String password, String email, String name) {
-        this.id = id;
-        this.version = version;
-        this.stages = stages;
-        this.requests = requests;
-        this.role = role;
-        this.password = password;
-        this.email = email;
-        this.name = name;
-    }
-
-    public User(Object o, String maria, String mail, String number, Role role, Object o1, Object o2) {
-    }
-
-    public User(Object o, @NotBlank(message = "Name cannot be empty") String name, @NotBlank(message = "Email cannot be empty") @Email String email, @Size(min = 7, max = 99, message = "Password must be between 7 and 99") String password, @NotNull(message = "Role required") Role role) {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public List<Request> getRequests() {
-        return requests;
-    }
-
-    public void setRequests(List<Request> requests) {
-        this.requests = requests;
-    }
-
-    public List<RequestStage> getStages() {
-        return stages;
-    }
-
-    public void setStages(List<RequestStage> stages) {
-        this.stages = stages;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
 }

@@ -13,9 +13,9 @@ import java.util.List;
 @Component
 public class JwtManager {
 
-    public String createToken(String email, List<String> roles, String secretKey, long validityInMilliseconds, String jwtProvider) {
+    public String createToken(String email, List<String> roles, String secretKey, int days, String jwtProvider) {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MILLISECOND, (int) validityInMilliseconds);
+        calendar.add(Calendar.DAY_OF_MONTH, days);
 
         return Jwts.builder()
                 .setSubject(email)
@@ -25,10 +25,13 @@ public class JwtManager {
                 .compact();
     }
 
-    public Claims parseToken(String jwt, String secretKey) throws JwtException {
-        return Jwts.parser()
-                .setSigningKey(secretKey.getBytes())
+    public Claims parseToken(String jwt) throws JwtException {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SecurityConstants.API_KEY.getBytes())
                 .parseClaimsJws(jwt)
                 .getBody();
+
+
+        return claims;
     }
 }

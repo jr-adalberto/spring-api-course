@@ -9,6 +9,8 @@ import com.spring.course.model.PageRequestModel;
 import com.spring.course.security.JwtManager;
 import com.spring.course.service.RequestService;
 import com.spring.course.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -22,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,6 +90,9 @@ public class UserResource {
                     .map(authority -> authority.getAuthority())
                     .collect(Collectors.toList());
 
+            System.out.println("Email: " + email);
+            System.out.println("Roles: " + roles);
+
             String jwtToken = jwtManager.createToken(
                     email,
                     roles,
@@ -94,16 +101,25 @@ public class UserResource {
                     SecurityConstants.JWT_PROVIDER
             );
 
-            UserLoginResponsedto response = new UserLoginResponsedto();
-            response.setToken(jwtToken);
-            response.setEmail(email);
-            response.setRoles(roles);
+            System.out.println("Generated JWT Token: " + jwtToken);
+
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, SecurityConstants.JWT_EXP_DAYS);
+            long expireIn = calendar.getTimeInMillis();
+
+            UserLoginResponsedto response = new UserLoginResponsedto(
+                    jwtToken,
+                    expireIn,
+                    SecurityConstants.JWT_PROVIDER
+            );
 
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
+            System.out.println("Bad credentials: " + e.getMessage());
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new UserLoginResponsedto(null, null, null, "Non-existent user or invalid password", null));
+                    .body(new UserLoginResponsedto(null, null, null));
         }
     }
 
@@ -120,7 +136,7 @@ public class UserResource {
     }
 
 
-    @Secured({"ROLE_ADMINISTRATOR"})
+    @Secured({ "ROLE_ADMINISTRATOR" })
     @PatchMapping("/role/{id}")
     public ResponseEntity<?> updateRole(@PathVariable(name = "id") Long id, @RequestBody @Valid UserUpdateRoledto userdto) {
         User user = new User();
