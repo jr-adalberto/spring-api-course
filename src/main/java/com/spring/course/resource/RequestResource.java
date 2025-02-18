@@ -8,6 +8,7 @@ import com.spring.course.dto.RequestUpdatedto;
 import com.spring.course.model.PageModel;
 import com.spring.course.model.PageRequestModel;
 import com.spring.course.repository.UserRepository;
+import com.spring.course.security.AccessManager;
 import com.spring.course.service.RequestService;
 import com.spring.course.service.RequestStageService;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,7 +27,7 @@ public class RequestResource {
 
     private final RequestService requestService;
     private final RequestStageService stageService;
-    private final UserRepository userRepository;
+    private final AccessManager accessManager;
 
     @PostMapping
     public ResponseEntity<Request> save(@RequestBody @Valid RequestSavedto requestdto) {
@@ -35,12 +37,14 @@ public class RequestResource {
     }
 
 
+    @PreAuthorize("@accessManager.isRequestOwner(#id)")
     @PutMapping("/{id}")
     public ResponseEntity<Request> update(@PathVariable(name = "id") Long id, @RequestBody @Valid RequestUpdatedto requestdto) {
         Request request = requestdto.transformToRequest();
         request.setId(id);
-        Request updateRequest = requestService.update(request);
-        return ResponseEntity.ok(updateRequest);
+
+        Request updatedRequest = requestService.update(request);
+        return ResponseEntity.ok(updatedRequest);
     }
 
     @GetMapping("/{id}")
