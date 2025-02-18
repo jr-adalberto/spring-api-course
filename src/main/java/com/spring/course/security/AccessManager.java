@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Component("accessManager")
@@ -23,24 +24,24 @@ public class AccessManager {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> result = userRepository.findByEmail(email);
 
-        if(!result.isPresent()) throw new NotFoundException("There are not user with email = " + email);
+        if(result.isEmpty()) throw new NotFoundException("There are not user with email = " + email);
 
         User user = result.get();
 
-        return user.getId() == id;
+        return Objects.equals(user.getId(), id);
     }
 
     public boolean isRequestOwner(Long id) {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> result = userRepository.findByEmail(email);
 
-        if(!result.isPresent()) throw new NotFoundException("There are not user with email = " + email);
+        if(result.isEmpty()) throw new NotFoundException("There are not user with email = " + email);
 
         User user = result.get();
 
         Request request = requestService.getById(id);
 
-        return user.getId() == request.getOwner().getId();
+        return Objects.equals(user.getId(), request.getOwner().getId());
 
     }
 
