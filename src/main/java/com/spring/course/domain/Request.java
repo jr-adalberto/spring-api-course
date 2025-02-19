@@ -1,6 +1,7 @@
 package com.spring.course.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spring.course.enums.RequestState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -23,7 +24,7 @@ import java.util.List;
 @Entity(name = "request")
 public class Request implements Serializable {
 
-
+    @Serial
     private static final long serialVersionUID = 7957819238970509652L;
 
     @Id
@@ -36,7 +37,7 @@ public class Request implements Serializable {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(name = "criation_date", nullable = false, updatable = false)
+    @Column(name = "creation_date", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
@@ -48,8 +49,13 @@ public class Request implements Serializable {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    @Getter(onMethod = @__({@JsonIgnore}))
     @OneToMany(mappedBy = "request")
     private List<RequestStage> stages = new ArrayList<RequestStage>();
+
+    @Getter(onMethod = @__({@JsonIgnore}))
+    @OneToMany(mappedBy = "request")
+    private List<RequestFile> files = new ArrayList<RequestFile>();
 
     public Request(Object o, @NotBlank(message = "Subject required") String subject, String description, Object o1, Object o2, @NotNull(message = "Owner required") User owner, List<RequestStage> stages, Object o3) {
     }

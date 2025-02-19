@@ -1,6 +1,7 @@
 package com.spring.course.domain;
 
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,7 @@ import lombok.Setter;
 @Entity(name = "user")
 public class User implements Serializable {
 
-    /**
-     *
-     */
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
