@@ -77,6 +77,23 @@ public class SecurityConfig {
 
                             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
                         })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
+                            LocalDateTime now = LocalDateTime.now();
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                            String formattedDate = now.format(formatter);
+
+                            Map<String, Object> errorResponse = Map.of(
+                                    "code", HttpServletResponse.SC_FORBIDDEN,
+                                    "msg", "Access Denied",
+                                    "date", formattedDate
+                            );
+
+                            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+                        })
                 )
                 .addFilterBefore(new AuthorizationFilter(jwtManager, objectMapper), UsernamePasswordAuthenticationFilter.class);
 

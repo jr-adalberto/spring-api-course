@@ -17,9 +17,10 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @Entity(name = "user")
-public class User implements Serializable{
+public class User implements Serializable {
 
     /**
      *

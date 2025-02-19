@@ -1,10 +1,9 @@
 package com.spring.course.service;
 
 import com.spring.course.domain.User;
-import com.spring.course.enums.Role;
-import com.spring.course.exception.DuplicateUserException;
 import com.spring.course.exception.NotFoundException;
 import com.spring.course.model.PageModel;
+import com.spring.course.security.CustomPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,35 +24,34 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final CustomPasswordEncoder passwordEncoder;
 
     public User save(User user) {
-        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-
-        Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
-        if (existingUser.isPresent()) {
-            throw new DuplicateUserException("There is already a registered user with the email: " + user.getEmail());
-        }
-
         String hash = HashUtil.getSecureHash(user.getPassword());
         user.setPassword(hash);
 
-        return userRepository.save(user);
+        User createdUser = userRepository.save(user);
+        return createdUser;
     }
 
+    @Transactional
     public User update(User user) {
         Optional<User> existingUserOpt = userRepository.findById(user.getId());
         if (existingUserOpt.isPresent()) {
             User existingUser = existingUserOpt.get();
-            existingUser.setPassword(HashUtil.getSecureHash(user.getPassword()));
+
+            existingUser.setName(user.getName());
+            existingUser.setEmail(user.getEmail());
+
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                existingUser.setPassword(HashUtil.getSecureHash(user.getPassword()));
+            }
 
             User updatedUser = userRepository.save(existingUser);
             return updatedUser;
@@ -61,24 +59,23 @@ public class UserService implements UserDetailsService {
         throw new EntityNotFoundException("User not found with ID: " + user.getId());
     }
 
-    public User getById(Long id) {
-        Optional<User> result = userRepository.findById(id);
-        return result.orElseThrow(() -> new NotFoundException("There are not user with id = " + id));
-    }
-
     public List<User> listAll() {
         List<User> users = userRepository.findAll();
         return users;
     }
 
-    public PageModel<User> listAllOnLazyMode(PageRequestModel pr) {
-        Pageable pageable = PageRequest.of(pr.toSpringPageRequest().getPageNumber(), pr.toSpringPageRequest().getPageSize());
-
-        Page<User> page = userRepository.findAll(pageable);
-
-        PageModel<User> pm = new PageModel<>((int) page.getTotalElements(), page.getSize(), page.getTotalPages(), page.getContent());
-        return pm;
+    public PageModel<User> listAllOnLazyMode(PageRequestModel pageRequestModel) {
+        Pageable pageable = PageRequest.of(pageRequestModel.getPage(), pageRequestModel.getSize());
+        Page<User> page = userRepository.findAll(pageable); // Consulta paginada
+        return new PageModel<>(
+                (int) page.getTotalElements(),
+                page.getSize(),
+                page.getTotalPages(),
+                page.getContent()
+        );
     }
+
+
     public User login(String email, String password) {
         password = HashUtil.getSecureHash(password);
         Optional<User> result = userRepository.login(email, password);
@@ -103,5 +100,10 @@ public class UserService implements UserDetailsService {
         org.springframework.security.core.userdetails.User userSpring = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
 
         return userSpring;
+    }
+
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
     }
 }

@@ -4,10 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class PageRequestModel {
     private int page = 0;
     private int size = 10;
@@ -22,15 +30,13 @@ public class PageRequestModel {
 
     }
 
-    public PageRequestModel(int page, int size) {
-    }
 
     public PageRequest toSpringPageRequest() {
         List<Order> orders = new ArrayList<>();
 
         String[] properties = sort.split(",");
 
-        for(String prop : properties) {
+        for (String prop : properties) {
             if (prop.trim().length() > 0) {
                 String column = prop.trim();
 
@@ -38,8 +44,7 @@ public class PageRequestModel {
                     column = column.replace("-", "").trim();
 
                     orders.add(Order.desc(column));
-                }
-                else orders.add(Order.asc(column));
+                } else orders.add(Order.asc(column));
             }
         }
 

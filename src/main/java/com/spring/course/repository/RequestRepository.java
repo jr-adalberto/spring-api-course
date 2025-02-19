@@ -24,7 +24,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Modifying
     @Query("UPDATE request SET state = ?2 WHERE id = ?1")
     public int updateStatus(Long id, RequestState state);
-
-    Optional<Request> findBySubject(String subject);
-
 }

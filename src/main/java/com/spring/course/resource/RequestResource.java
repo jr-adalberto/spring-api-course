@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "requests")
@@ -55,20 +57,19 @@ public class RequestResource {
 
     @GetMapping
     public ResponseEntity<PageModel<Request>> listAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam Map<String, String> params) {
 
-        PageRequestModel pr = new PageRequestModel(page, size);
+        PageRequestModel pr = new PageRequestModel(params);
         PageModel<Request> pm = requestService.listAllOnLazyMode(pr);
 
         return ResponseEntity.ok(pm);
     }
 
     @GetMapping("/{id}/request-stages")
-    public ResponseEntity<PageModel<RequestStage>> listAllStagesById(@PathVariable(name = "id") Long id,
-                                                                     @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                     @RequestParam(value = "size", defaultValue = "10") int size) {
-        PageRequestModel pr = new PageRequestModel(page, size);
+    public ResponseEntity<PageModel<RequestStage>> listAllStagesById(
+            @PathVariable(name = "id") Long id,
+            @RequestParam Map<String, String> params) {
+        PageRequestModel pr = new PageRequestModel(params);
         PageModel<RequestStage> pm = stageService.listAllByRequestIdOnLazyModel(id, pr);
         return ResponseEntity.ok(pm);
     }

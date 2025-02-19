@@ -1,7 +1,7 @@
 package com.spring.course.resource;
 
-import com.spring.course.constant.SecurityConstants;
 import com.spring.course.domain.Request;
+import com.spring.course.domain.RequestStage;
 import com.spring.course.domain.User;
 import com.spring.course.dto.*;
 import com.spring.course.model.PageModel;
@@ -10,12 +10,9 @@ import com.spring.course.security.AccessManager;
 import com.spring.course.security.JwtManager;
 import com.spring.course.service.RequestService;
 import com.spring.course.service.UserService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,9 +23,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -43,7 +39,7 @@ public class UserResource {
     private final JwtManager jwtManager;
     private final AccessManager accessManager;
 
-    @Secured({"ROLE_ADMINISTRATOR"})
+    @Secured({ "ROLE_ADMINISTRATOR" })
     @PostMapping
     public ResponseEntity<User> save(@RequestBody @Valid UserSavedto userdto) {
         User userToSave = userdto.transformToUser();
@@ -58,7 +54,6 @@ public class UserResource {
         user.setId(id);
         User updatedUser = userService.update(user);
         return ResponseEntity.ok(updatedUser);
-
     }
 
     @GetMapping("/{id}")
@@ -69,10 +64,9 @@ public class UserResource {
 
     @GetMapping
     public ResponseEntity<PageModel<User>> listAll(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam Map<String, String> params) {
 
-        PageRequestModel pr = new PageRequestModel(page, size);
+        PageRequestModel pr = new PageRequestModel(params);
         PageModel<User> pm = userService.listAllOnLazyMode(pr);
 
         return ResponseEntity.ok(pm);
@@ -110,18 +104,6 @@ public class UserResource {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new UserLoginResponsedto(null, null, null));
         }
-    }
-
-    @GetMapping("/{id}/requests")
-    public ResponseEntity<PageModel<Request>> listAllRequestsById(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "page", defaultValue = "0") int page) {
-
-        PageRequestModel pr = new PageRequestModel(page, size);
-        PageModel<Request> pm = requestService.listAllByOwnerIdOnLazyModel(id, pr);
-
-        return ResponseEntity.ok(pm);
     }
 
 

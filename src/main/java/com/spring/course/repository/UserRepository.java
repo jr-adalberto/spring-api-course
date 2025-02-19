@@ -2,6 +2,8 @@ package com.spring.course.repository;
 
 import com.spring.course.domain.User;
 import com.spring.course.enums.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     public Optional<User> findByEmail(String email);
 
+    @Override
+    @Query("SELECT u FROM user u")
+    Page<User> findAll(Pageable pageable);
 }
