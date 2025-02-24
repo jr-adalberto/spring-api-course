@@ -57,26 +57,27 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiError> handleCustomExceptions(RuntimeException ex, HttpStatus status) {
+    public ResponseEntity<ApiError> handleCustomExceptions(RuntimeException ex, HttpStatus conflict) {
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), new Date());
-        return new ResponseEntity<>(error, status);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 
     @ExceptionHandler(DuplicateUserException.class)
     public ResponseEntity<ApiError> handleDuplicateUserException(DuplicateUserException ex) {
-        return handleCustomExceptions(ex, HttpStatus.CONFLICT);
+        ApiError error = new ApiError(HttpStatus.CONFLICT.value(), ex.getMessage(), new Date());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return handleCustomExceptions(ex, HttpStatus.BAD_REQUEST);
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), new Date());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
         ApiError error = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), new Date());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }
