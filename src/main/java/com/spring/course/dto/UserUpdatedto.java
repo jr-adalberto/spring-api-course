@@ -24,7 +24,9 @@ public class UserUpdatedto {
         User user = new User();
         user.setName(this.name);
         user.setEmail(this.email);
-        user.setPassword(this.password);
+        if (this.password != null && !this.password.isEmpty()) {
+            user.setPassword(this.password);
+        }
         return user;
     }
 }

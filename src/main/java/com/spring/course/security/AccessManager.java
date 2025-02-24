@@ -24,10 +24,11 @@ public class AccessManager {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> result = userRepository.findByEmail(email);
 
-        if(result.isEmpty()) throw new NotFoundException("There are not user with email = " + email);
+        if (result.isEmpty()) {
+            throw new NotFoundException("There are no users with email = " + email);
+        }
 
         User user = result.get();
-
         return Objects.equals(user.getId(), id);
     }
 
