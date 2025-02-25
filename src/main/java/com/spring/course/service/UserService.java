@@ -66,7 +66,7 @@ public class UserService implements UserDetailsService {
 
     public PageModel<User> listAllOnLazyMode(PageRequestModel pageRequestModel) {
         Pageable pageable = PageRequest.of(pageRequestModel.getPage(), pageRequestModel.getSize());
-        Page<User> page = userRepository.findAll(pageable); // Consulta paginada
+        Page<User> page = userRepository.findAll(pageable);
         return new PageModel<>(
                 (int) page.getTotalElements(),
                 page.getSize(),

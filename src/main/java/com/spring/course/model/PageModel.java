@@ -1,6 +1,5 @@
 package com.spring.course.model;
 
-import com.spring.course.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

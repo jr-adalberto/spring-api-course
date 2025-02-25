@@ -1,7 +1,5 @@
 package com.spring.course.dto;
 
-import com.spring.course.domain.Request;
-import com.spring.course.domain.RequestStage;
 import com.spring.course.domain.User;
 import com.spring.course.enums.Role;
 import jakarta.validation.constraints.Email;
@@ -12,8 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor

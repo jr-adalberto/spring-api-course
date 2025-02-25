@@ -2,11 +2,8 @@ package com.spring.course.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
