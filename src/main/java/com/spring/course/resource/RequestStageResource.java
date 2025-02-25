@@ -13,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "request-stages")
@@ -39,11 +42,21 @@ public class RequestStageResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdStage);
     }
 
-
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<RequestStage> getById(@PathVariable(name = "id") Long id) {
         RequestStage stage = stageService.getById(id);
         return ResponseEntity.ok(stage);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
+        stageService.delete(id);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "RequestStage deleted successfully");
+        response.put("id", id.toString());
+
+        return ResponseEntity.ok(response);
+    }
+
 }

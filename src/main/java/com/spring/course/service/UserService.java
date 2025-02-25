@@ -53,15 +53,13 @@ public class UserService implements UserDetailsService {
                 existingUser.setPassword(HashUtil.getSecureHash(user.getPassword()));
             }
 
-            User updatedUser = userRepository.save(existingUser);
-            return updatedUser;
+            return userRepository.save(existingUser);
         }
         throw new EntityNotFoundException("User not found with ID: " + user.getId());
     }
 
     public List<User> listAll() {
-        List<User> users = userRepository.findAll();
-        return users;
+        return userRepository.findAll();
     }
 
     public PageModel<User> listAllOnLazyMode(PageRequestModel pageRequestModel) {
@@ -91,19 +89,27 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> result = userRepository.findByEmail(username);
 
-        if(!result.isPresent()) throw new UsernameNotFoundException("Dosen't exist user with email = " + username);
+        if(result.isEmpty()) throw new UsernameNotFoundException("Dosen't exist user with email = " + username);
 
         User user = result.get();
 
         List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 
-        org.springframework.security.core.userdetails.User userSpring = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
-
-        return userSpring;
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 
     public User getById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isPresent()) {
+            userRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("User not found with ID: " + id);
+        }
     }
 }

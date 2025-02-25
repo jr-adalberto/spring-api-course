@@ -27,9 +27,7 @@ public class PageRequestModel {
         if (params.containsKey("size")) size = Integer.parseInt(params.get("size"));
         if (params.containsKey("sort")) sort = params.get("sort");
         if (params.containsKey("search")) search = params.get("search");
-
     }
-
 
     public PageRequest toSpringPageRequest() {
         List<Order> orders = new ArrayList<>();

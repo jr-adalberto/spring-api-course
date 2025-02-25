@@ -9,10 +9,12 @@ import com.spring.course.model.PageRequestModel;
 import com.spring.course.repository.RequestRepository;
 import com.spring.course.repository.RequestStageRepository;
 import com.spring.course.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,16 +45,23 @@ public class RequestStageService {
     }
 
     public List<RequestStage> listAllByRequestId(Long requestId) {
-        List<RequestStage> stages = requestStageRepository.findAllByRequestId(requestId);
-        return stages;
+        return requestStageRepository.findAllByRequestId(requestId);
     }
 
     public PageModel<RequestStage> listAllByRequestIdOnLazyModel(Long requestId, PageRequestModel pr) {
         Pageable pageable = pr.toSpringPageRequest();
         Page<RequestStage> page = requestStageRepository.findAllByRequestId(requestId, pageable);
 
-        PageModel<RequestStage> pm = new PageModel<>((int) page.getTotalElements(), page.getSize(), page.getTotalPages(), page.getContent());
-        return pm;
+        return new PageModel<>((int) page.getTotalElements(), page.getSize(), page.getTotalPages(), page.getContent());
     }
 
+    @Transactional
+    public void delete(Long id) {
+        Optional<RequestStage> stageOpt = requestStageRepository.findById(id);
+        if (stageOpt.isPresent()) {
+            requestStageRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("RequestStage not found with ID: " + id);
+        }
+    }
 }

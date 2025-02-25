@@ -2,6 +2,8 @@ package com.spring.course.resource.exception;
 
 import com.spring.course.exception.DuplicateUserException;
 import com.spring.course.exception.NotFoundException;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -30,7 +32,7 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
 
         List<String> errors = ex.getBindingResult().getAllErrors()
                 .stream()
-                .map(error -> error.getDefaultMessage())
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
         ApiError errorResponse = new ApiError(
@@ -75,8 +77,8 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiError> handleEntityNotFoundException(EntityNotFoundException ex) {
         ApiError error = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), new Date());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }

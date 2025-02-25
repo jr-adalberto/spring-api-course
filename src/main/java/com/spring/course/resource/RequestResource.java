@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -69,5 +70,17 @@ public class RequestResource {
         PageModel<RequestStage> pm = stageService.listAllByRequestIdOnLazyModel(id, pr);
         return ResponseEntity.ok(pm);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> delete(@PathVariable Long id) {
+        requestService.delete(id);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Request deleted successfully");
+        response.put("id", id.toString());
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }

@@ -30,16 +30,13 @@ public class UserSavedto {
     @NotNull(message = "Role is required")
     private Role role;
 
-    // Removido os campos requests e stages do DTO
-    // Eles não devem ser enviados na criação de um novo usuário
-
     public User transformToUser() {
         User user = new User();
         user.setName(this.name);
         user.setEmail(this.email);
-        user.setPassword(this.password); // A senha será hasheada no serviço
+        user.setPassword(this.password);
         user.setRole(this.role);
-        // Requests e stages não são definidos no DTO, pois são gerenciados separadamente
+
         return user;
     }
 }
