@@ -8,11 +8,13 @@ import com.spring.course.model.PageModel;
 import com.spring.course.model.PageRequestModel;
 import com.spring.course.repository.RequestRepository;
 import com.spring.course.repository.UserRepository;
+import com.spring.course.specification.RequestSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,11 +60,18 @@ public class RequestService {
     }
 
     public PageModel<Request> listAllOnLazyMode(PageRequestModel pr) {
-        Pageable pageable = PageRequest.of(pr.toSpringPageRequest().getPageNumber(), pr.toSpringPageRequest().getPageSize());
+        Pageable pageable = pr.toSpringPageRequest();
 
-        Page<Request> page = requestRepository.findAll(pageable);
+        Specification<Request> spec = RequestSpecification.search(pr.getSearch());
 
-        return new PageModel<>((int) page.getTotalElements(), page.getSize(), page.getTotalPages(), page.getContent());
+        Page<Request> page = requestRepository.findAll(spec, pageable);
+
+        return new PageModel<>(
+                (int) page.getTotalElements(),
+                page.getSize(),
+                page.getTotalPages(),
+                page.getContent()
+        );
     }
 
     public List<Request> listAllByOwnerId(Long ownerId) {

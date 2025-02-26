@@ -4,6 +4,7 @@ import com.spring.course.domain.User;
 import com.spring.course.exception.NotFoundException;
 import com.spring.course.model.PageModel;
 import com.spring.course.security.CustomPasswordEncoder;
+import com.spring.course.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,7 @@ import com.spring.course.repository.UserRepository;
 import com.spring.course.service.util.HashUtil;
 import jakarta.persistence.EntityNotFoundException;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -62,17 +65,18 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public PageModel<User> listAllOnLazyMode(PageRequestModel pageRequestModel) {
-        Pageable pageable = PageRequest.of(pageRequestModel.getPage(), pageRequestModel.getSize());
-        Page<User> page = userRepository.findAll(pageable);
-        return new PageModel<>(
-                (int) page.getTotalElements(),
-                page.getSize(),
-                page.getTotalPages(),
-                page.getContent()
-        );
-    }
+    public PageModel<User> listAllOnLazyMode(PageRequestModel pr) {
+        Pageable pageable = pr.toSpringPageRequest();
 
+        Specification<User> spec = UserSpecification.search(pr.getSearch());
+
+        Page<User> page = userRepository.findAll(spec, pageable);
+
+        List<User> users = page.getContent().stream().peek(u -> u.setName(u.getName().toUpperCase())).collect(Collectors.toList());
+
+        PageModel<User> pm = new PageModel<>((int) page.getTotalElements(), page.getSize(), page.getTotalPages(), users);
+        return pm;
+    }
 
     public User login(String email, String password) {
         password = HashUtil.getSecureHash(password);
@@ -89,7 +93,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> result = userRepository.findByEmail(username);
 
-        if(result.isEmpty()) throw new UsernameNotFoundException("Dosen't exist user with email = " + username);
+        if (result.isEmpty()) throw new UsernameNotFoundException("Dosen't exist user with email = " + username);
 
         User user = result.get();
 

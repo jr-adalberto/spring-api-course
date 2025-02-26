@@ -9,10 +9,12 @@ import com.spring.course.model.PageRequestModel;
 import com.spring.course.repository.RequestRepository;
 import com.spring.course.repository.RequestStageRepository;
 import com.spring.course.repository.UserRepository;
+import com.spring.course.specification.RequestStageSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,9 +52,17 @@ public class RequestStageService {
 
     public PageModel<RequestStage> listAllByRequestIdOnLazyModel(Long requestId, PageRequestModel pr) {
         Pageable pageable = pr.toSpringPageRequest();
-        Page<RequestStage> page = requestStageRepository.findAllByRequestId(requestId, pageable);
 
-        return new PageModel<>((int) page.getTotalElements(), page.getSize(), page.getTotalPages(), page.getContent());
+        Specification<RequestStage> spec = RequestStageSpecification.search(pr.getSearch());
+
+        Page<RequestStage> page = requestStageRepository.findAllByRequestId(requestId, pageable, spec);
+
+        return new PageModel<>(
+                (int) page.getTotalElements(),
+                page.getSize(),
+                page.getTotalPages(),
+                page.getContent()
+        );
     }
 
     @Transactional

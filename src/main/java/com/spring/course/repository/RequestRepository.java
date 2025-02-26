@@ -4,6 +4,7 @@ import com.spring.course.domain.Request;
 import com.spring.course.enums.RequestState;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +24,6 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     @Modifying
     @Query("UPDATE request SET state = ?2 WHERE id = ?1")
     public int updateStatus(Long id, RequestState state);
+
+    Page<Request> findAll(Specification<Request> spec, Pageable pageable);
 }
